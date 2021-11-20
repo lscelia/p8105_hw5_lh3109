@@ -3,7 +3,7 @@ title: "p8105_hw5_lh3109"
 output: github_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, message=FALSE}
 library(tidyverse)
 ```
 
@@ -30,8 +30,6 @@ homicide_df =
   #filter out data entry error
   filter(city_state != "TulsaAL")
 ```
-
-Describe the raw data
 
 ## Baltimore, MD
 ```{r}
@@ -212,4 +210,53 @@ As the plot shows, we can see that most of the patients from the experimental ar
 
 
 # Problem 3
+## Introduce data with missing values
+
+```{r}
+set.seed(10)
+
+iris_with_missing = iris %>% 
+  map_df(~replace(.x, sample(1:150, 20), NA)) %>%
+  mutate(Species = as.character(Species))
+```
+
+## Tidy data
+```{r}
+#write a function that replace missing value in a vector
+fill_missing = function(vec) {
+  if (is.numeric(vec)) {
+    #if the vector is numeric
+    #replace missing values with the mean of the non-missing values
+    vec = replace_na(vec, mean(vec, na.rm = TRUE))
+  } else if (is.character(vec)) {
+    #if the vector is character
+    #replace missing values with "virginica"
+    vec = replace_na(vec, "virginica")
+  } else {
+    #stop the function if the vector is not numeric or character
+    stop("Please enter a numeric or charactor vector")
+  }
+  
+  #return the fixed vector
+  return(vec)
+}
+
+#map the function to the data frame
+iris_fixed = map(iris_with_missing, fill_missing)
+
+
+iris_fixed %>% 
+  #convert the iris_fixed to data frame for better reading
+  as.data.frame() %>% 
+  #clean names
+  janitor::clean_names() %>% 
+  head()
+
+```
+
+
+
+
+
+
 
